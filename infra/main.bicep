@@ -63,10 +63,10 @@ var deployments = [
     name: 'gpt-4o'
     model: {
       format: 'OpenAI'
-      name: 'gpt-4o'
-      version: '2024-05-13'
+      name: 'gpt-4o-mini'
+      version: '2024-07-18'
     }
-    capacity: 40
+    capacity: 8
   }
   {
     name: 'text-embedding-ada-002'
@@ -90,7 +90,7 @@ var userManagedIdentityName = '${abbrs.managedIdentityUserAssignedIdentities}${r
 var apiManagementServiceName = '${abbrs.apiManagementService}${resourceToken}'
 var storageAccountName = '${abbrs.storageStorageAccounts}${resourceToken}'
 var searchServiceName = '${abbrs.searchSearchServices}${resourceToken}'
-var openAIName = 'openai-${resourceToken}'
+var openAIName = 'openai14-${resourceToken}'
 var speechServiceName = '${abbrs.cognitiveServicesSpeech}${resourceToken}'
 var languageServiceName = '${abbrs.cognitiveServicesTextAnalytics}${resourceToken}'
 var registryName = '${abbrs.containerRegistryRegistries}${resourceToken}'
@@ -148,21 +148,6 @@ module storageAccount 'core/storage/storage-account.bicep' = {
   }
 }
 
-@description('Creates an Azure AI services.')
-module ai 'app/ai.bicep' = {
-  scope: rg
-  name: 'ai'
-  params: {
-    tags: tags
-    restore: restore
-    openAIName: openAIName
-    speechServiceName: speechServiceName
-    languageServiceName: languageServiceName
-    searchServiceName: searchServiceName
-    deployments: deployments
-    managedIdentityName: userManagedIdentity.outputs.name
-  }
-}
 
 @description('Creates Dashboard and API web applications.')
 module webapps 'app/webapps.bicep' = {
@@ -305,6 +290,22 @@ module openAiUserRoleManagedIdentity 'core/security/role.bicep' = {
     roleDefinitionId: '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd' // Cognitive Services OpenAI User
     principalId: userManagedIdentity.outputs.principalId
     principalType: 'ServicePrincipal'
+  }
+}
+
+@description('Creates an Azure AI services.')
+module ai 'app/ai.bicep' = {
+  scope: rg
+  name: 'ai'
+  params: {
+    tags: tags
+    restore: restore
+    openAIName: openAIName
+    speechServiceName: speechServiceName
+    languageServiceName: languageServiceName
+    searchServiceName: searchServiceName
+    deployments: deployments
+    managedIdentityName: userManagedIdentity.outputs.name
   }
 }
 
